@@ -43,11 +43,20 @@ app.get('/', (req, res) => {
           .last()
           .text()
           .trim()
-          .replace(/[^0-9:]/g, '') || null;
+          .replace(/[^0-9:]/g, '') ||
+        $(timeSelector)
+          .eq(10)
+          .last()
+          .text()
+          .trim()
+          .replace(/[^0-9:]/g, '');
       const statusText = $(statusSelector).text().trim() || null;
       const airportText = $(airportSelector).last().text().trim() || null;
 
-      if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
+      console.log(timeText);
+      console.log(airportText);
+
+      //   if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
 
       return res.json({
         message: 'OK',
