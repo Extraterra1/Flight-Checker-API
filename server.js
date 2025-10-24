@@ -21,9 +21,11 @@ app.get('/', (req, res) => {
 
     // Select by position and content patterns instead of class names
     const timeSelector = 'div:contains("Scheduled"):is(div:contains("Estimated"), div:contains("Actual")) div[class^="text-helper"]:last-child';
-    const statusSelector = 'div:contains("Status"), div:contains("On Time"), div:contains("Delayed"), div:contains("Arrived"), div:contains("Cancelled")';
-    // look for any div whose class contains "AirportCodeLabel" (stable substring),
-    // then fall back to data-testid or textual fallbacks
+    // Prefer elements whose class contains "StatusContainer" and that contain Scheduled/Departed/Arrived;
+    // keep textual fallbacks for other common status labels
+    const statusSelector =
+      'div[class*="StatusContainer"]:contains("Scheduled"), div[class*="StatusContainer"]:contains("Departed"), div[class*="StatusContainer"]:contains("Arrived"), div:contains("On Time"), div:contains("Delayed"), div:contains("Arrived"), div:contains("Cancelled")';
+    // look for any div whose class contains "AirportCodeLabel" (stable substring), then other fallbacks
     const airportSelector = 'div[class*="AirportCodeLabel"]';
 
     try {
