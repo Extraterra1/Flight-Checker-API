@@ -37,24 +37,18 @@ app.get('/', (req, res) => {
 
       const $ = cheerio.load(response.data);
 
-      const timeText =
-        $(timeSelector)
-          .last()
-          .last()
-          .text()
-          .trim()
-          .replace(/[^0-9:]/g, '') ||
-        $(timeSelector)
-          .eq(10)
-          .last()
-          .text()
-          .trim()
-          .replace(/[^0-9:]/g, '');
+      const times = $(timeSelector)
+        .map((i, el) => {
+          const txt = $(el).text().trim();
+          const m = txt.match(/(\d{1,2}:\d{2})/);
+          return m ? m[1] : null;
+        })
+        .get()
+        .filter(Boolean);
+
+      const timeText = times.at(-1) || null;
       const statusText = $(statusSelector).text().trim() || null;
       const airportText = $(airportSelector).last().text().trim() || null;
-
-      console.log(timeText);
-      console.log(airportText);
 
       //   if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
 
