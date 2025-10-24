@@ -9,7 +9,12 @@ app.use(express.json()); // parse JSON bodies
 
 // Example route
 app.get('/', (req, res) => {
-  res.json({ message: 'API is running!' });
+  const { icao, number } = req.query;
+  const URL = `https://www.flightstats.com/v2/flight-tracker/${icao}/${number}`;
+
+  console.log(URL);
+
+  res.json({ message: 'API is running!', icao, number });
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
