@@ -22,7 +22,9 @@ app.get('/', (req, res) => {
     // Select by position and content patterns instead of class names
     const timeSelector = 'div:contains("Scheduled"):is(div:contains("Estimated"), div:contains("Actual")) div[class^="text-helper"]:last-child';
     const statusSelector = 'div:contains("Status"), div:contains("On Time"), div:contains("Delayed"), div:contains("Arrived"), div:contains("Cancelled")';
-    const airportSelector = 'div[data-testid*="airport"], div:contains("Airport Code"):last, div:contains("FNC"):last';
+    // look for any div whose class contains "AirportCodeLabel" (stable substring),
+    // then fall back to data-testid or textual fallbacks
+    const airportSelector = 'div[class*="AirportCodeLabel"]';
 
     try {
       const response = await axios.get(URL, {
@@ -50,7 +52,7 @@ app.get('/', (req, res) => {
       const statusText = $(statusSelector).text().trim() || null;
       const airportText = $(airportSelector).last().text().trim() || null;
 
-      //   if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
+      if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
 
       return res.json({
         message: 'OK',
