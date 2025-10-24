@@ -19,9 +19,10 @@ app.get('/', (req, res) => {
 
     const URL = `https://www.flightstats.com/v2/flight-tracker/${icao}/${number}`;
 
-    const timeSelector = 'div.text-helper__TextHelper-sc-8bko4a-0.kbHzdx';
-    const statusSelector = 'div.text-helper__TextHelper-sc-8bko4a-0.iicbYn';
-    const airportSelector = 'div.route-with-plane__AirportLink-sc-154xj1h-3.kCdJkI';
+    // Select by position and content patterns instead of class names
+    const timeSelector = 'div:contains("Scheduled"):is(div:contains("Estimated"), div:contains("Actual")) div[class^="text-helper"]:last-child';
+    const statusSelector = 'div:contains("Status"), div:contains("On Time"), div:contains("Delayed"), div:contains("Arrived"), div:contains("Cancelled")';
+    const airportSelector = 'div[data-testid*="airport"], div:contains("Airport Code"):last, div:contains("FNC"):last';
 
     try {
       const response = await axios.get(URL, {
@@ -38,18 +39,21 @@ app.get('/', (req, res) => {
 
       const timeText =
         $(timeSelector)
-          .eq(5)
+          .last()
+          .last()
           .text()
           .trim()
           .replace(/[^0-9:]/g, '') || null;
-      const statusText = $(statusSelector).first().text().trim() || null;
-      const airportText = $(airportSelector).first().text().trim() || null;
+      const statusText = $(statusSelector).text().trim() || null;
+      const airportText = $(airportSelector).last().text().trim() || null;
+
+      if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
 
       return res.json({
         message: 'OK',
         flight: `${icao}${number}`,
         time: timeText,
-        status: statusText,
+        // status: statusText,
         airport: airportText
       });
     } catch (err) {
