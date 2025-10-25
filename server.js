@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
     // Prefer elements whose class contains "StatusContainer" and that contain Scheduled/Departed/Arrived;
     // keep textual fallbacks for other common status labels
     const statusSelector =
-      'div[class*="StatusContainer"]:contains("Scheduled"), div[class*="StatusContainer"]:contains("Departed"), div[class*="StatusContainer"]:contains("Arrived"), div:contains("On Time"), div:contains("Delayed"), div:contains("Arrived"), div:contains("Cancelled")';
+      'div[class*="StatusContainer"]:contains("Scheduled"), div[class*="StatusContainer"]:contains("Departed"), div[class*="StatusContainer"]:contains("Arrived")';
     // look for any div whose class contains "AirportCodeLabel" (stable substring), then other fallbacks
     const airportSelector = 'div[class*="AirportCodeLabel"]';
 
@@ -51,7 +51,16 @@ app.get('/', (req, res) => {
         .filter(Boolean);
 
       const timeText = times.at(-1) || null;
-      const statusText = $(statusSelector).text().trim() || null;
+
+      // pick the first matched status container, then prefer its first inner div's text
+      const statusElem = $(statusSelector).first();
+      let statusText = null;
+      if (statusElem && statusElem.length) {
+        const inner = statusElem.find('div').first();
+        statusText = inner && inner.length ? inner.text().trim() : statusElem.text().trim();
+        statusText = statusText || null;
+      }
+
       const airportText = $(airportSelector).last().text().trim() || null;
 
       if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
@@ -60,7 +69,7 @@ app.get('/', (req, res) => {
         message: 'OK',
         flight: `${icao}${number}`,
         time: timeText,
-        // status: statusText,
+        status: statusText,
         airport: airportText
       });
     } catch (err) {
