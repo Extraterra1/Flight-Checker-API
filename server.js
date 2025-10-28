@@ -2,15 +2,17 @@
 import express from 'express'; // if using "type": "module" in package.json
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import cors from 'cors';
 // const express = require("express"); // use this instead if not using ES modules
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json()); // parse JSON bodies
+app.use(cors());
 
 // Example route
-app.get('/', (req, res) => {
+app.get('/flight/', (req, res) => {
   (async () => {
     const { icao, number } = req.query;
     if (!icao || !number) {
@@ -50,8 +52,6 @@ app.get('/', (req, res) => {
         .get()
         .filter(Boolean);
 
-      const timeText = times.at(-1) || null;
-
       // pick the first matched status container, then prefer its first inner div's text
       const statusElem = $(statusSelector).first();
       let statusText = null;
@@ -62,6 +62,7 @@ app.get('/', (req, res) => {
       }
 
       const airportText = $(airportSelector).last().text().trim() || null;
+      const timeText = times.at(-1) || null;
 
       if (airportText !== 'FNC') return res.status(404).json({ error: 'Flight not found or invalid airport code' });
 
