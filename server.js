@@ -19,7 +19,8 @@ app.get('/flight/', (req, res) => {
       return res.status(400).json({ error: 'Missing required query parameters: icao and number' });
     }
 
-    const URL = `https://www.flightstats.com/v2/flight-tracker/${icao}/${number}`;
+    const effectiveIcao = icao.toUpperCase() === 'WK' ? 'EDW' : icao;
+    const URL = `https://www.flightstats.com/v2/flight-tracker/${effectiveIcao}/${number}`;
 
     // Select by position and content patterns instead of class names
     const timeSelector = 'div:contains("Scheduled"):is(div:contains("Estimated"), div:contains("Actual")) div[class^="text-helper"]:last-child';
