@@ -19,7 +19,7 @@ app.get('/flight/', (req, res) => {
       return res.status(400).json({ error: 'Missing required query parameters: icao and number' });
     }
 
-    const effectiveIcao = icao.toUpperCase() === 'WK' ? 'EDW' : icao;
+    const effectiveIcao = icao.toUpperCase() === 'WK' ? 'EDW' : icao.toUpperCase() === 'BY' ? 'TOM' : icao;
     const URL = `https://www.flightstats.com/v2/flight-tracker/${effectiveIcao}/${number}`;
 
     // Select by position and content patterns instead of class names
